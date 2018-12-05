@@ -16,6 +16,33 @@ public class SingLinkedList {
         }
     }
 
+    private final static class LruCache{
+        private SingLinkedList list = new SingLinkedList();
+        private int size = 0;
+        private int capacity;
+
+        LruCache(int capacity){
+            this.capacity = capacity;
+        }
+
+        public Node access(int val){
+            Node node = list.findByVal(val);
+
+            if(node == null){
+                list.insertFirst(node);
+                if(size < capacity){
+                    size ++;
+                }else{
+                    list.deleteLast();
+                }
+            }else{
+                list.deleteNode(node);
+                list.insertFirst(node);
+            }
+            return node;
+        }
+    }
+
     public Node findByVal(int val){
         Node p = head;
         while (p != null && p.data != val){
@@ -27,6 +54,7 @@ public class SingLinkedList {
 
     public Node findByNode(Node node){
         Node p = head;
+
         while (p != node){
             p = p.next;
         }
@@ -45,6 +73,15 @@ public class SingLinkedList {
 
             node.next = p.next;
             p.next = node;
+        }
+    }
+
+    public void insertFirst(Node node){
+        if(head == null){
+            head = node;
+        }else{
+            node.next = head;
+            head = node;
         }
     }
 
@@ -79,6 +116,44 @@ public class SingLinkedList {
         }
     }
 
+    public void deleteNode(Node node){
+        if(head == node){
+            head = node.next;
+            return;
+        }
+
+        Node p = head;
+        while (p.next != node){
+            p = p.next;
+        }
+
+        if(p.next == null){
+            p.next = null;
+        }else{
+            p.next = p.next.next;
+        }
+    }
+
+    public void deleteLast(){
+        Node p = head;
+        Node q = null;
+
+        while (p.next != null){
+            q = p;
+            p = p.next;
+        }
+
+        q.next = null;
+    }
+
+    public void printAll(){
+        Node p = head;
+        while (p != null){
+            System.out.println(p.data);
+            p = p.next;
+        }
+    }
+
     public static void main(String[] args) {
         Node node1 = new Node(1, null);
         Node node2 = new Node(2, null);
@@ -88,6 +163,7 @@ public class SingLinkedList {
 
         SingLinkedList list = new SingLinkedList();
         list.head = node1;
-        list.insertBefor(node1, new Node(4, null));
+        list.deleteLast();
+        list.printAll();
     }
 }
