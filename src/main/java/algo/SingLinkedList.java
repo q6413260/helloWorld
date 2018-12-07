@@ -155,7 +155,32 @@ public class SingLinkedList {
     }
 
     public boolean isPalindrome(){
-        return false;
+        Node slow = head;
+        Node fast = head;
+
+        while (slow != null && fast != null && fast.next != null){
+            slow = slow.next;
+            fast = fast.next.next;
+        }
+
+        Node right = null;
+        if(fast == null){
+            right = slow;
+        }else if(fast.next == null){
+            right = slow.next;
+        }
+
+        Node reverse = SingLinkedList.reverse(right);
+        Node tmep = head;
+        while(reverse != null){
+            if(reverse.data != tmep.data){
+                return false;
+            }
+            reverse = reverse.next;
+            tmep = tmep.next;
+        }
+
+        return true;
     }
 
     //需要o(n)的空间复杂度
@@ -240,16 +265,58 @@ public class SingLinkedList {
         slow.next = slow.next.next;
     }
 
+    //判断链表是否存在环
+    public boolean isAnnular(){
+        Node slow = head;
+        Node fast = head;
+        while (slow != null && fast != null && fast.next != null){
+            slow = slow.next;
+            fast = fast.next.next;
+            if(slow == fast){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    //两个有序链表合并
+    public static Node merge(Node node1, Node node2){
+        Node head = new Node(0, null);
+        Node p = head;
+        Node next;
+        while (node1 != null && node2 != null){
+            if(node1.data <= node2.data){
+                next = node1;
+                node1 = node1.next;
+            }else{
+                next = node2;
+                node2 = node2.next;
+            }
+            p.next = next;
+            p = p.next;
+        }
+
+        if(node1 == null){
+            p.next = node2;
+        }
+        if(node2 == null){
+            p.next = node1;
+        }
+
+        return head.next;
+    }
+
     public static void main(String[] args) {
         Node node1 = new Node(1, null);
-        Node node2 = new Node(2, null);
-        Node node3 = new Node(3, null);
+        Node node2 = new Node(4, null);
+        Node node3 = new Node(7, null);
         node1.next = node2;
         node2.next = node3;
 
-        SingLinkedList list = new SingLinkedList();
-        list.head = node1;
-        list.delete(3);
-        list.printAll();
+        Node node4 = new Node(2, null);
+        Node node5 = new Node(6, null);
+        node4.next = node5;
+
+        Node node = SingLinkedList.merge(node1, node4);
     }
 }
