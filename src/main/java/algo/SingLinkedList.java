@@ -198,9 +198,47 @@ public class SingLinkedList {
     }
 
     //将Node反转，递归方法
-//    public static Node reverse2(Node node){
-//
-//    }
+    public static Node reverse2(Node prev, Node node){
+        if(prev == null && node == null){
+            return null;
+        }
+        if(node.next != null){
+            Node temp = node;
+            node = node.next;
+            temp.next = prev;
+            return reverse2(temp, node);
+        }else{
+            node.next = prev;
+            return node;
+        }
+    }
+
+    //删除单链表倒数节点，使用快慢指针
+    // lastIndex 从1开始
+    public void delete(int lastIndex){
+        Node slow = head;
+        Node fast = head;
+        while (lastIndex > 0 && fast != null){
+            fast = fast.next;
+            lastIndex --;
+        }
+
+        if(lastIndex > 0){
+            return;
+        }
+
+        if(fast == null){
+            head = head.next;
+            return;
+        }
+
+        while (fast.next != null){
+            fast = fast.next;
+            slow = slow.next;
+        }
+
+        slow.next = slow.next.next;
+    }
 
     public static void main(String[] args) {
         Node node1 = new Node(1, null);
@@ -211,7 +249,7 @@ public class SingLinkedList {
 
         SingLinkedList list = new SingLinkedList();
         list.head = node1;
-        Node node = SingLinkedList.reverse2(node1);
+        list.delete(3);
         list.printAll();
     }
 }
