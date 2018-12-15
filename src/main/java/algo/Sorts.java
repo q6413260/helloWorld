@@ -56,6 +56,76 @@ public class Sorts {
         }
     }
 
+    public static void mergeSort(int a[]){
+        mergeSort(a, 0, a.length-1);
+    }
+
+    private static void mergeSort(int[] a, int p, int q) {
+        if(p>=q){
+            return;
+        }
+        int mid = (q-p)/2 + p;
+        mergeSort(a, p, mid);
+        mergeSort(a, mid+1, q);
+        merge(a, p, mid, q);
+    }
+
+    private static void merge(int[] a, int p, int mid, int q) {
+        int[] result = new int[q-p+1];
+        int i=p, j=mid+1, k=0;
+        while (i<=mid && j<=q){
+            if(a[i] < a[j]){
+                result[k++] = a[i++];
+            }else{
+                result[k++] = a[j++];
+            }
+        }
+
+        if(i>mid){
+            while (j<=q){
+                result[k++] = a[j++];
+            }
+        }
+
+        if(j>q){
+            while (i<=mid){
+                result[k++] = a[i++];
+            }
+        }
+
+        for(int l=0; l<result.length; l++){
+            a[p++] = result[l];
+        }
+    }
+
+    public static void quickSort(int[] a){
+        quickSort(a, 0, a.length-1);
+    }
+
+    private static void quickSort(int[] a, int p, int q) {
+        if(p>=q){
+            return;
+        }
+        int mid = partition(a, p, q);
+        quickSort(a, p, mid-1);
+        quickSort(a, mid+1, q);
+    }
+
+    private static int partition(int[] a, int p, int q) {
+        int base = a[q];
+        int j=p;
+        for(int i=p; i<=q; i++){
+            if(a[i] <= base){
+                int tmp = a[i];
+                a[i] = a[j];
+                a[j] = tmp;
+                j++;
+            }
+        }
+
+        return j-1;
+    }
+
     public static void printAll(int a[]){
         for(int i=0; i<a.length; i++){
             System.out.println(a[i]);
@@ -63,8 +133,8 @@ public class Sorts {
     }
 
     public static void main(String[] args) {
-        int[] a = new int[]{4,3,6,2,1};
-        Sorts.selectSort(a);
+        int[] a = new int[]{3,4,7,6,8,5,6};
+        Sorts.quickSort(a);
         Sorts.printAll(a);
     }
 }
