@@ -126,6 +126,42 @@ public class Sorts {
         return j-1;
     }
 
+    //o(n)复杂度找到第k大元素
+    public static int nMax(int[] a, int k){
+        if(k>a.length || k<=0){
+            //0代表不存在
+            return 0;
+        }
+
+        int index = nMax(a, k, 0, a.length-1);
+        return a[index];
+    }
+
+    private static int nMax(int[] a, int k, int p, int q) {
+        int mid = partitionNmax(a, p, q);
+        if(mid + 1 == k){
+            return mid;
+        }else if(mid + 1 < k){
+            return nMax(a, k, mid+1, q);
+        }else{
+            return nMax(a, k, p, mid-1);
+        }
+    }
+
+    private static int partitionNmax(int[] a, int p, int q) {
+        int i=p, base = a[q];
+
+        for(int j=p; j<=q; j++){
+            if(a[j] >= base){
+                int tmp = a[i];
+                a[i] = a[j];
+                a[j] = tmp;
+                i++;
+            }
+        }
+        return i-1;
+    }
+
     public static void printAll(int a[]){
         for(int i=0; i<a.length; i++){
             System.out.println(a[i]);
@@ -133,8 +169,7 @@ public class Sorts {
     }
 
     public static void main(String[] args) {
-        int[] a = new int[]{3,4,7,6,8,5,6};
-        Sorts.quickSort(a);
-        Sorts.printAll(a);
+        int[] a = new int[]{3,4,7,8,6,5,6};
+        System.out.println(Sorts.nMax(a, 4));
     }
 }
