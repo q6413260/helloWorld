@@ -1,6 +1,6 @@
 package algo;
 
-/**冒泡、插入、选择
+/**冒泡、插入、选择、归并、快排、计数
  * Created by yeming on 2018/12/10.
  */
 public class Sorts {
@@ -162,6 +162,35 @@ public class Sorts {
         return i-1;
     }
 
+    public static int[] countSort(int[] a){
+        int max = a[0];
+        for(int i=1; i<a.length; i++){
+            if(a[i] > max){
+                max = a[i];
+            }
+        }
+
+        int[] b = new int[max+1];
+        for(int i=0; i<b.length; i++){
+            b[i] = 0;
+        }
+
+        for(int i=0; i<a.length; i++){
+            b[a[i]] ++;
+        }
+
+        for(int i=1; i<b.length; i++){
+            b[i] = b[i] + b[i-1];
+        }
+
+        int[] c = new int[a.length];
+        for(int i=a.length-1; i>=0; i--){
+            c[--b[a[i]]] = a[i];
+        }
+
+        return c;
+    }
+
     public static void printAll(int a[]){
         for(int i=0; i<a.length; i++){
             System.out.println(a[i]);
@@ -169,7 +198,7 @@ public class Sorts {
     }
 
     public static void main(String[] args) {
-        int[] a = new int[]{3,4,7,8,6,5,6};
-        System.out.println(Sorts.nMax(a, 4));
+        int[] a = new int[]{2,5,3,0,2,3,0,3};
+        printAll(Sorts.countSort(a));
     }
 }
