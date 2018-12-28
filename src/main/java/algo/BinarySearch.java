@@ -154,9 +154,75 @@ public class BinarySearch {
         return -1;
     }
 
+    /**o(n)时间复杂度
+     * 先找到循环数组的分界点，将数组分成两个有序数组，分别二分查找
+     * @param array
+     * @param data
+     * @return
+     */
+    public static int loopBinarySearch(int[] array, int data){
+        int pivot = 0;
+        for(int i=0; i<array.length-1; i++){
+            if(array[i] > array[i+1]){
+                pivot = i;
+                break;
+            }
+        }
+
+        int index = BinarySearch.indexOf2(array, 0, pivot, data);
+        if(index == -1){
+            index = BinarySearch.indexOf2(array, pivot, array.length-1, data);
+        }
+
+        return index;
+    }
+
+    /**o(n)时间复杂度
+     * 先找到分界点，然后数组所有元素索引加上index(超过数据长度取模)，变成有序数组，
+     * 二分查找找到元素data，然后索引减去index
+     * @param array
+     * @param data
+     * @return
+     */
+    public static int loopBinarySearch2(int[] array, int data){
+        int pivot = 0;
+        for(int i=0; i<array.length-1; i++){
+            if(array[i] > array[i+1]){
+                pivot = i;
+                break;
+            }
+        }
+
+        int step = array.length-1-pivot;
+        int[] newArray = new int[array.length];
+        for(int i=0; i<array.length; i++){
+            newArray[(i+step)%array.length] = array[i];
+        }
+
+        int index = BinarySearch.indexOf(newArray, data);
+        if(index != -1){
+            if(index >= step){
+                return index-step;
+            }else{
+                return index+array.length-step;
+            }
+        }
+        return index;
+    }
+
+    public static int loopBinarySearch3(int[] array, int data){
+        int low=0, high = array.length-1;
+        int mid = (high-low)/2 + low;
+
+        while (low <= high){
+
+        }
+        return -1;
+    }
+
     public static void main(String[] args) {
-        int[] array = new int[]{3,5,5,7,9};
-        System.out.println(BinarySearch.lastNoMoreThan(array, 5));
+        int[] array = new int[]{9,10,11,1,2,3,4,5};
+        System.out.println(BinarySearch.loopBinarySearch2(array, 111));
         System.out.println(BinarySearch.sqrt(5, 0.000001));
     }
 }
