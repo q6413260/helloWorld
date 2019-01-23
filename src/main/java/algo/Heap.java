@@ -4,7 +4,7 @@ package algo;
  * Created by yeming on 2019/1/23.
  */
 public class Heap {
-    private int[] data;
+    int[] data;
     private int count;
     private int capacity;
 
@@ -12,6 +12,10 @@ public class Heap {
         this.capacity = capacity;
         this.data = new int[capacity+1];
         this.count = 0;
+    }
+
+    public int length(){
+        return count;
     }
 
     public void insert(int val){
@@ -122,5 +126,82 @@ public class Heap {
 
         int[] a = new int[]{0, 50,40, 30, 35, 20, 10, 25};
         Heap.sort(a);
+    }
+}
+
+class MinHeap{
+    private int capacity;
+    private int data[];
+    private int count;
+
+    MinHeap(int capacity){
+        this.capacity = capacity;
+        data = new int[capacity+1];
+        count = 0;
+    }
+
+    public void insertTop(int val){
+        if(count < capacity){
+            insert(val);
+        }else{
+            if(val > data[1]){
+                deleteMin();
+                insert(val);
+            }
+        }
+    }
+
+    public void deleteMin(){
+        data[1] = data[count--];
+
+        heapify(data, count, 1);
+    }
+
+    private void heapify(int[] data, int count, int i) {
+        while (2*i+1 <= count){
+            int minIndex = i;
+            if(data[2*i] < data[minIndex]){
+                minIndex = 2*i;
+            }
+
+            if(data[2*i+1] < data[minIndex]){
+                minIndex = 2*i+1;
+            }
+
+            if(minIndex == i){
+                break;
+            }
+
+            swap(data, i, minIndex);
+            i = minIndex;
+        }
+    }
+
+    public void insert(int val){
+        if(count >= capacity){
+            return;
+        }
+        count++;
+        int index = count;
+        data[index] = val;
+
+        while (index >=2 && data[index] < data[index/2]){
+            swap(data, index/2, index);
+            index = index/2;
+        }
+    }
+
+    private void swap(int[] data, int a, int b) {
+        int temp = data[a];
+        data[a] = data[b];
+        data[b] = temp;
+    }
+
+    public int[] top(){
+        return data;
+    }
+
+    public int length(){
+        return count;
     }
 }
