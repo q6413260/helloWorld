@@ -26,13 +26,32 @@ public class StringMatcher {
                 return i;
             }
 
-            int rightMove = j-bc[(int)source[i+j]];
-            int goodSufficCount = targetCount-j-1;
-
-
+            int rightMoveByBC = j-bc[(int)source[i+j]];
+            int rightMoveByGS = getRightMoveByGS(j, targetCount, suffix, prefix);
+            i = i + Math.max(rightMoveByBC, rightMoveByGS);
         }
 
         return -1;
+    }
+
+    private int getRightMoveByGS(int j, int targetCount, int[] suffix, boolean[] prefix) {
+        int goodSuffixCount = targetCount-j-1;
+        if(goodSuffixCount <= 0){
+            return 0;
+        }
+
+        if(suffix[goodSuffixCount] != -1){
+            return j-suffix[goodSuffixCount]+1;
+        }
+
+        for(int r=j+2;r<=targetCount-1; r++){
+            int childSuffixCount = targetCount-r;
+            if(prefix[childSuffixCount]){
+                return targetCount-childSuffixCount;
+            }
+        }
+
+        return targetCount;
     }
 
     private void generateGS(char[] target, int targetCount, int[] suffix, boolean[] prefix) {
@@ -41,7 +60,7 @@ public class StringMatcher {
             prefix[i] = false;
         }
 
-        for(int i=0; i<targetCount; i++){
+        for(int i=0; i<targetCount-1; i++){
             int suffixCount = 0;
 
             int j=i;
@@ -65,5 +84,32 @@ public class StringMatcher {
             bc[(int)target[i]] = i;
         }
         return bc;
+    }
+
+    public int bfSearch(char[] source, char[] target){
+        int targetCount = target.length;
+        int sourceCount = source.length;
+
+        for(int i=0; i<= sourceCount-targetCount; i++){
+            int j= 0;
+            for(; j<targetCount; j++){
+                if(target[j] != source[i+j]){
+                    break;
+                }
+            }
+            if(j == targetCount){
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    public static void main(String[] args) {
+        StringMatcher stringMatcher = new StringMatcher();
+        char[] source = new char[]{'c','a','c','c','a','b'};
+        char[] target = new char[]{'c','a','b'};
+//        System.out.println(stringMatcher.bmSearch(source, 6, target, 3));
+        System.out.println(stringMatcher.bfSearch(source, target));
     }
 }
