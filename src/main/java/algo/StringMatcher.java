@@ -105,11 +105,53 @@ public class StringMatcher {
         return -1;
     }
 
+    public int kmpSearch(char[] source, char[] target){
+        int sourceCount = source.length;
+        int targetCount = target.length;
+        int[] next = generateNext(target, targetCount);
+        int j=0;
+
+        for(int i=0; i<sourceCount; i++){
+            while (j>=1 && source[i] != target[j]){
+                j = next[j-1] + 1;
+            }
+
+            if(source[i] == target[j]){
+                j++;
+            }
+
+            if(j == targetCount){
+                return i-j+1;
+            }
+        }
+        return -1;
+    }
+
+    private int[] generateNext(char[] target, int targetCount) {
+        int[] next = new int[targetCount];
+        next[0] = -1;
+        int k=-1;
+
+        for(int i=1; i<targetCount; i++){
+            while (k!=-1 && target[k+1] != target[i]){
+                k = next[k];
+            }
+
+            if(target[k+1] == target[i]){
+                k++;
+            }
+
+            next[i] = k;
+        }
+
+        return next;
+    }
+
     public static void main(String[] args) {
         StringMatcher stringMatcher = new StringMatcher();
         char[] source = new char[]{'c','a','c','c','a','b'};
-        char[] target = new char[]{'c','a','b'};
+        char[] target = new char[]{'c','a','a'};
 //        System.out.println(stringMatcher.bmSearch(source, 6, target, 3));
-        System.out.println(stringMatcher.bfSearch(source, target));
+        System.out.println(stringMatcher.kmpSearch(source, target));
     }
 }
