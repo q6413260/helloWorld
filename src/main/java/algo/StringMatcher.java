@@ -1,5 +1,8 @@
 package algo;
 
+import java.util.LinkedList;
+import java.util.Queue;
+
 /**
  * Created by yeming on 2019/1/25.
  */
@@ -155,3 +158,130 @@ public class StringMatcher {
         System.out.println(stringMatcher.kmpSearch(source, target));
     }
 }
+
+class Trie{
+    private AcNode root = new AcNode('/');
+
+    public void insert(char[] chars){
+        AcNode p = root;
+
+        for(int i=0; i<chars.length; i++){
+            int idx = chars[i]- 'a';
+            AcNode child = p.children[idx];
+
+            if(child == null){
+                AcNode newNode = new AcNode(chars[i]);
+                p.children[idx] = newNode;
+            }
+
+            p = p.children[idx];
+        }
+
+        p.length = chars.length;
+        p.isEnding = true;
+    }
+
+    public boolean find(char[] target){
+        AcNode p = root;
+
+        for(int i=0; i<target.length; i++){
+            int idx = target[i] - 'a';
+            AcNode child = p.children[idx];
+
+            if(child == null){
+                return false;
+            }
+
+            p = p.children[idx];
+        }
+
+        return p.isEnding;
+    }
+
+    public void buildFailurePointer(){
+        root.failNode = null;
+        Queue<AcNode> queue = new LinkedList<AcNode>();
+        queue.add(root);
+
+        while (queue.size() !=0){
+            AcNode p = queue.poll();
+            AcNode[] children = p.children;
+            for(int i=0; i<children.length; i++){
+                AcNode child = children[i];
+
+                if(child == null){
+                    continue;
+                }
+
+                if(p == root){
+                    child.failNode = root;
+                }else{
+                    AcNode failNode = p.failNode;
+                    int idx = child.data - 'a';
+                    while (failNode != null){
+                        if(failNode.children[idx] != null){
+                            child.failNode = failNode.children[idx];
+                            break;
+                        }
+                        failNode = failNode.failNode;
+                    }
+
+                    if(failNode == null){
+                        child.failNode = root;
+                    }
+                }
+
+                queue.add(child);
+            }
+
+        }
+    }
+
+    /**
+     * 利用AC自动机匹配字符串
+     * @param text
+     */
+    public void match(char[] text) { // text 是主串
+        int n = text.length;
+        AcNode p = root;
+        for (int i = 0; i < n; ++i) {
+            int idx = text[i] - 'a';
+            while (p.children[idx] == null && p != root) {
+                p = p.failNode; // 失败指针发挥作用的地方
+            }
+            p = p.children[idx];
+            if (p == null) p = root; // 如果没有匹配的，从 root 开始重新匹配
+            AcNode tmp = p;
+            while (tmp != root) { // 打印出可以匹配的模式串
+                if (tmp.isEnding) {
+                    int pos = i-tmp.length+1;
+                    System.out.println(" 匹配起始下标 " + pos + "; 长度 " + tmp.length);
+                }
+                tmp = tmp.failNode;
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        Trie trie = new Trie();
+        trie.insert("abcd".toCharArray());
+        trie.insert("bc".toCharArray());
+        trie.insert("bcd".toCharArray());
+        trie.insert("c".toCharArray());
+        trie.buildFailurePointer();
+        trie.match("abcd".toCharArray());
+    }
+
+    class AcNode{
+        private char data;
+        private AcNode[] children = new AcNode[26];
+        private boolean isEnding = false;
+        private int length;
+        private AcNode failNode;
+
+        AcNode(char data){
+            this.data = data;
+        }
+    }
+}
+
