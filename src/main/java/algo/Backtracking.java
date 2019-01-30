@@ -42,6 +42,7 @@ public class Backtracking {
             }
             return;
         }
+
         currentAnswer[i] = 0;
         f(i+1, cw, items, n, w);
         if (cw + items[i] <= w) {// 已经超过可以背包承受的重量的时候，就不要再装了
@@ -112,14 +113,12 @@ public class Backtracking {
         Backtracking backtracking = new Backtracking();
         int[] items = new int[]{20,10,5,8,9,31,30,13,16,19};
         backtracking.f(0, 0, items, 10, 100);
-//        System.out.println(backtracking.bestAnswer);
-//        int sum = 0;
-//        for(int i=0; i<backtracking.bestAnswer.length; i++){
-//            if(backtracking.bestAnswer[i] == 1){
-//                sum += items[i];
-//                System.out.println("装进去的物品序号:" + i);
-//            }
-//        }
+        for(int[] answer : backtracking.bestAnswerMap.get(backtracking.maxW)){
+            for(int i=0; i<answer.length; i++){
+                System.out.print(answer[i] + " ");
+            }
+            System.out.println();
+        }
 
 //        backtracking.cal8queens(0);
     }
