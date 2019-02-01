@@ -255,6 +255,186 @@ public class DynamicProgramming {
         return 0;
     }
 
+
+    private int minEdist = Integer.MAX_VALUE;
+    /**
+     * 利用回溯法求a和b的莱温斯坦距离
+     * @param a
+     * @param b
+     * @param i
+     * @param j
+     * @param edist
+     */
+    public void lwstBT(char[] a, char[]b, int i, int j, int edist){
+        if(i==a.length || j==b.length){
+            if(i<a.length){
+                edist += a.length-i-1;
+            }
+            if(j<b.length){
+                edist += b.length-j-1;
+            }
+
+            minEdist = Math.min(minEdist, edist);
+            return;
+        }
+
+        if(a[i] == b[j]){
+            lwstBT(a, b, i+1, j+1, edist);
+        }else{
+            lwstBT(a, b, i, j+1, edist+1);
+            lwstBT(a, b, i+1, j, edist+1);
+            lwstBT(a, b, i+1, j+1, edist+1);
+        }
+    }
+
+    public int lwstDP(char[] a, char[] b){
+        int aLen = a.length;
+        int bLen = b.length;
+        int[][] minEdist = new int[aLen][bLen];
+
+        //初始化填充第一行
+        for(int i=0; i<aLen; i++){
+            if(a[0] == b[i]){
+                minEdist[0][i] = i;
+            }else if(i == 0){
+                minEdist[0][i] = 1;
+            }else{
+                minEdist[0][i] = minEdist[0][i-1] + 1;
+            }
+        }
+
+        //初始化填充第一列
+        for(int j=0; j<bLen; j++){
+            if(a[j] == b[0]){
+                minEdist[j][0] = j;
+            }else if(j==0){
+                minEdist[j][0] = 1;
+            }else{
+                minEdist[j][0] = minEdist[j-1][0] + 1;
+            }
+        }
+
+        //从第二行开始填充
+        for(int i=1; i<aLen; i++){
+            for(int j=1; j<bLen; j++){
+                if(a[i] == b[j]){
+                    minEdist[i][j] = min(minEdist[i-1][j]+1, minEdist[i][j-1]+1, minEdist[i-1][j-1]);
+                }else{
+                    minEdist[i][j] = min(minEdist[i-1][j]+1, minEdist[i][j-1]+1, minEdist[i-1][j-1]+1);
+                }
+            }
+        }
+
+        return minEdist[aLen-1][bLen-1];
+    }
+
+    public int lcsDP(char[] a, char[] b){
+        int aLen = a.length;
+        int bLen = b.length;
+        int[][] maxLcs = new int[aLen][bLen];
+
+        for(int i=0; i<aLen; i++){
+            if(a[0] == b[i]){
+                maxLcs[0][i] = 1;
+            }else if(i == 0){
+                maxLcs[0][i] = 0;
+            }else{
+                maxLcs[0][i] = maxLcs[0][i-1];
+            }
+        }
+
+        for(int j=0; j<bLen; j++){
+            if(b[0] == a[j]){
+                maxLcs[j][0] = 1;
+            }else if(j == 0){
+                maxLcs[j][0] = 0;
+            }else{
+                maxLcs[j][0] = maxLcs[j-1][0];
+            }
+        }
+
+        for(int i=1; i<aLen; i++){
+            for(int j=1; j<bLen; j++){
+                if(a[i] == b[j]){
+                    maxLcs[i][j] = max(maxLcs[i][j-1], maxLcs[i-1][j], maxLcs[i-1][j-1]+1);
+                }else{
+                    maxLcs[i][j] = max(maxLcs[i][j-1], maxLcs[i-1][j], maxLcs[i-1][j-1]);
+                }
+            }
+        }
+
+        return maxLcs[aLen-1][bLen-1];
+    }
+
+    public int lisDP(int[] a){
+        int aLen = a.length;
+        int[] maxLcs = new int[aLen];
+        maxLcs[0] = 1;
+
+        for(int i=1; i<aLen; i++){
+            maxLcs[i] = 1;
+            for(int j=0; j<i; j++){
+                if(a[i] > a[j] && maxLcs[i] < maxLcs[j] + 1){
+                    maxLcs[i] = maxLcs[j]+1;
+                }
+            }
+        }
+
+        int max = Integer.MIN_VALUE;
+        for(int i=0; i<aLen; i++){
+            max = Math.max(max, maxLcs[i]);
+        }
+
+        return max;
+    }
+
+    /**
+     *
+     * @param a
+     * @param end
+     * @return 返回的是以end为结尾的最长单调递增子串长度，所以需要一个临时变量来记录所有最长单调递增子串长度
+     */
+    private int maxLisLength = 1;
+    public int lisBT(int[] a, int end){
+        if(end == 0){
+            return 1;
+        }
+
+        int maxLis = 1;
+        for(int i=0; i<end; i++){
+            int lis = lisBT(a, i);
+            if(a[end]>a[i] && maxLis<lis+1){
+                maxLis = lis+1;
+            }
+        }
+        maxLisLength = Math.max(maxLis, maxLisLength);
+        return maxLis;
+    }
+
+    private int max(int a, int b, int c){
+        int max = a;
+        if(max<b){
+            max = b;
+        }
+        if(max<c){
+            max = c;
+        }
+
+        return max;
+    }
+
+    private int min(int a, int b, int c){
+        int min = a;
+        if(min>b){
+            min = b;
+        }
+        if(min>c){
+            min = c;
+        }
+
+        return min;
+    }
+
     public static void main(String[] args) {
         int[] weight = {2,2,4,6,3};
         int[] value = {3,4,8,9,6};
@@ -266,5 +446,15 @@ public class DynamicProgramming {
         int[][] yanghui = new int[][]{{5},{7,8},{2,3,4},{4,9,6,1},{2,7,9,4,5}};
         System.out.println(dynamicProgramming.minDis(yanghui));
         System.out.println(dynamicProgramming.countSmallChange2(10,new int[]{1,3,5,10}));
+
+        char[] a = "mitcmu".toCharArray(), b = "mtacnu".toCharArray();
+        dynamicProgramming.lwstBT(a, b, 0, 0, 0);
+        System.out.println(dynamicProgramming.minEdist);
+        System.out.println(dynamicProgramming.lwstDP(a, b));
+        System.out.println(dynamicProgramming.lcsDP(a, b));
+
+        int[] array = new int[]{5,9,1};
+        System.out.println("动态规划LIS:" + dynamicProgramming.lisDP(array));
+        System.out.println(dynamicProgramming.maxLisLength);
     }
 }
