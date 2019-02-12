@@ -1,7 +1,6 @@
 package algo;
 
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
 
 /**无向图bfs和dfs搜索；利用图进行kahn排序和dfs
  * Created by xiaoming on 24/01/2019.
@@ -9,20 +8,27 @@ import java.util.Queue;
 public class Graph {
     private int v;
     private LinkedList<Integer>[] array;
+    private LinkedList<Edge>[] adj;
     private boolean found;
 
     Graph(int v){
         this.v = v;
         array = new LinkedList[v];
+        adj = new LinkedList[v];
 
         for(int i=0; i<v; i++){
             array[i] = new LinkedList<Integer>();
+            adj[i] = new LinkedList<Edge>();
         }
     }
 
     public void addEdge(int s, int t){
         array[s].add(t);
         array[t].add(s);
+    }
+
+    public void addEdge(int s, int t, int w){
+        adj[s].add(new Edge(s, t, w));
     }
 
     public void addSingleEdge(int s, int t){
@@ -208,6 +214,163 @@ public class Graph {
         System.out.println(t + " ");
     }
 
+    public void dijkstra(int s, int t){
+        //用来保存路径
+        int[] chain = new int[v];
+        boolean[] inQueue = new boolean[v];
+        Vertex[] vertexes = new Vertex[v];
+
+        for(int i=0; i<v; i++){
+            Vertex vertex = new Vertex(i, Integer.MAX_VALUE);
+            vertexes[i] = vertex;
+            chain[i] = -1;
+        }
+
+        PriorityQueue queue = new PriorityQueue(v);
+        vertexes[s].dist = 0;
+        queue.add(vertexes[s]);
+        inQueue[s] = true;
+
+        while (!queue.isEmpty()){
+            Vertex minDist = queue.poll();
+            if(minDist.id == t){
+                break;
+            }
+
+            LinkedList<Edge> edges = adj[minDist.id];
+            for(Edge edge : edges){
+                Vertex next = vertexes[edge.tid];
+                if(minDist.dist + edge.weight < next.dist){
+                    next.dist = minDist.dist + edge.weight;
+                    chain[next.id] = minDist.id;
+
+                    if(inQueue[edge.tid]){
+                        queue.update(next);
+                    }else{
+                        inQueue[edge.tid] = true;
+                        queue.add(next);
+                    }
+                }
+            }
+        }
+
+        print(chain, s, t);
+    }
+
+    private class PriorityQueue{
+        private int count;
+        private Vertex[] nodes;
+        private Map<Integer, Integer> id2IndexMap = new HashMap<Integer, Integer>();
+
+        PriorityQueue(int capacity){
+            nodes = new Vertex[capacity+1];
+            this.count = 0;
+        }
+
+        public Vertex poll(){
+            if(count<1){
+                return null;
+            }
+
+            Vertex result = nodes[1];
+            id2IndexMap.remove(result.id);
+            nodes[1] = nodes[count--];
+            heapify(nodes, count, 1);
+
+            return result;
+        }
+
+        //从下往上堆化
+        private void heapifyDown2Up(Vertex[] nodes, int count, int i){
+            while (i/2 >=1){
+                if(nodes[i].dist < nodes[i/2].dist){
+                    swap(i, i/2, nodes);
+                    i = i/2;
+                }else{
+                    break;
+                }
+            }
+        }
+
+        //从上往下堆化
+        private void heapify(Vertex[] nodes, int count, int i) {
+            while (2*i + 1 <= count){
+                int minIndex = i;
+                if(nodes[2*i].dist < nodes[minIndex].dist){
+                    minIndex = 2*i;
+                }
+
+                if(nodes[2*i+1].dist < nodes[minIndex].dist){
+                    minIndex = 2*i + 1;
+                }
+
+                if(minIndex == i){
+                    break;
+                }
+                swap(minIndex, i, nodes);
+                i = minIndex;
+            }
+        }
+
+        public void add(Vertex vertex){
+            nodes[++count] = vertex;
+            id2IndexMap.put(vertex.id, count);
+            int index = count;
+
+            while (index>=2){
+                if(nodes[index].dist < nodes[index/2].dist){
+                    swap(index, index/2, nodes);
+                    index = index/2;
+                }else{
+                    break;
+                }
+            }
+        }
+
+        private void swap(int sonIndex, int parentIndex, Vertex[] nodes) {
+            Vertex temp = nodes[parentIndex];
+            nodes[parentIndex] = nodes[sonIndex];
+            nodes[sonIndex] = temp;
+            id2IndexMap.put(nodes[sonIndex].id, sonIndex);
+            id2IndexMap.put(nodes[parentIndex].id, parentIndex);
+        }
+
+        public void update(Vertex vertex){
+            Integer index = id2IndexMap.get(vertex.id);
+            if(index == null){
+                return;
+            }
+
+            heapifyDown2Up(nodes, count, index);
+        }
+
+        public boolean isEmpty(){
+            return count == 0;
+        }
+    }
+
+    private class Vertex{
+        private int id;
+        private int dist;
+
+        Vertex(int id, int dist){
+            this.id = id;
+            this.dist = dist;
+        }
+    }
+
+    private class Edge{
+        private int sid;
+        private int tid;
+        private int weight;
+
+        Edge(int sid, int tid, int weight){
+            this.sid = sid;
+            this.tid = tid;
+            this.weight = weight;
+        }
+    }
+
     public static void main(String[] args) {
 //        Graph graph = new Graph(8);
 //        graph.addEdge(0,1);
@@ -221,13 +384,24 @@ public class Graph {
 //        graph.addEdge(5,7);
 //        graph.addEdge(6,7);
 //        graph.dfs(5, 7);
-        Graph graph = new Graph(5);
-        graph.addSingleEdge(0, 1);
-        graph.addSingleEdge(0, 3);
-        graph.addSingleEdge(1, 2);
-        graph.addSingleEdge(2, 3);
-        graph.addSingleEdge(2, 4);
-        graph.addSingleEdge(4, 3);
-        graph.topoSortByDfs();
+//        Graph graph = new Graph(5);
+//        graph.addSingleEdge(0, 1);
+//        graph.addSingleEdge(0, 3);
+//        graph.addSingleEdge(1, 2);
+//        graph.addSingleEdge(2, 3);
+//        graph.addSingleEdge(2, 4);
+//        graph.addSingleEdge(4, 3);
+//        graph.topoSortByDfs();
+        Graph graph = new Graph(6);
+        graph.addEdge(0,1,10);
+        graph.addEdge(0,4,15);
+        graph.addEdge(1,2,15);
+        graph.addEdge(1,3,2);
+        graph.addEdge(3,2,1);
+        graph.addEdge(3,5,12);
+        graph.addEdge(2,5,5);
+        graph.addEdge(4,5,10);
+
+        graph.dijkstra(0, 5);
     }
 }
